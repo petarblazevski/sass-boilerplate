@@ -1,0 +1,88 @@
+/*------------------------------------*\
+	#MIXINS
+\*------------------------------------*/
+
+/// Event wrapper
+/// @author Harry Roberts
+/// @param {Bool} $self [false] - Whether or not to include current selector
+/// @link https://twitter.com/csswizardry/status/478938530342006784 Original tweet from Harry Roberts
+@mixin on-event($self: false) {
+    @if $self {
+    	&,
+    	&:hover,
+    	&:active,
+    	&:focus {
+    	   @content;
+    	}
+    } @else {
+	   &:hover,
+	   &:active,
+	   &:focus {
+	   @content;
+	   }
+    }
+}
+
+/// Make a context based selector a little more friendly
+/// @author Hugo Giraudel
+/// @param {String} $context
+@mixin when-inside($context) {
+    #{$context} & {
+	   @content;
+    }
+}
+
+/// Responsive manager
+/// @param {String} $breakpoint - Breakpoint
+/// @requires $breakpoints
+/// @link http://sass-guidelin.es/#breakpoint-manager Sass Guidelines - Breakpoint Manager
+@mixin respond-to($breakpoint) {
+    $query: map-get($breakpoints, $breakpoint);
+
+    @if not $query {
+	   @error 'No value found for `#{$breakpoint}`. Please make sure it is defined in `$breakpoints` map.';
+    }
+
+    @media #{if(type-of($query) == 'string', unquote($query), inspect($query))} {
+	   @content;
+    }
+}
+
+// Create a fully formed type style (sizing and vertical rhythm) by passing in a
+// single value, e.g.:
+//
+// .foo {
+//     @include inuit-font-size(12px);
+// }
+//
+// This will generate a rem-based font-size with its pixel fallback, as well as
+// a unitless line-height which will place the element on your baseline, e.g.:
+//
+// .foo {
+//     font-size: 12px;
+//     font-size: 0.75rem;
+//     line-height: 2;
+// }
+//
+// @author Harry Roberts
+// @package inuitcss
+// @link https://github.com/inuitcss/tools.mixins/blob/master/_tools.mixins.scss
+@mixin font-size($font-size, $line-height: auto) {
+    font-size: $font-size;
+    font-size: ($font-size / $base-font-size) * 1rem;
+
+    @if $line-height == auto {
+        line-height: ceil($font-size / $base-line-height) * ($base-line-height / $font-size);
+    }
+
+    @else {
+
+    	@if (type-of($line-height) == number or $line-height == inherit or $line-height == normal) {
+    	   line-height: $line-height;
+    	}
+
+    	@elseif ($line-height != none and $line-height != false) {
+    	   @warn "D’oh! ‘#{$line-height}’ is not a valid value for `line-height`."
+    	}
+    }
+}
